@@ -2,14 +2,19 @@ import numpy as np
 import networkx as nx 
 import matplotlib.pyplot as plt
 
-def rand_matrix(n,p):
-    A = np.random.rand(n,n)
-    B = np.zeros((n,n))
-    for i in range(n):
-        for j in range(n):
-            if A[i,j] < p:
-                B[i,j] = 1
-    return B
+def erdos_renyi_matrix(node_count,p):
+    '''
+    Take two arguemnts, #of notes and the probability of each edge
+    return a matrix representing the randomly generated erdos renyi graph
+    Edges are directed
+    '''
+    prob_matrix = np.random.rand(node_count,node_count) # Use random number between [0,1) to realize that prob of edge is p 
+    initial = np.zeros((node_count,node_count))
+    for i in range(node_count):
+        for j in range(node_count):
+            if prob_matrix[i,j] < p:
+                initial[i,j] = 1
+    return initial
 
 def generate_z_2(n):
     '''
@@ -30,11 +35,14 @@ def generate_z_2(n):
 
     return initial
 
-def rand_matrix_sym(n,p):
-    A = rand_matrix(n,p)
-    B = np.zeros((n,n))
-    for i in range(n):
-        for j in range(i,n):
+def erdos_renyi_matrix_und(node_count,p):
+    '''
+    generate a erdos ranyi matrix where the edges are not directed 
+    '''
+    A = erdos_renyi_matrix(node_count,p)
+    B = np.zeros((node_count,node_count))
+    for i in range(node_count):
+        for j in range(i,node_count): # just make the matrix symmetric 
             B[i,j] = A[i,j]
             B[j,i] = A[i,j]
     return B
