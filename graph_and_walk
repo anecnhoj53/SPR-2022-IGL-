@@ -1,0 +1,124 @@
+import numpy as np
+import networkx as nx 
+import matplotlib.pyplot as plt
+
+def rand_matrix(n,p):
+    A = np.random.rand(n,n)
+    B = np.zeros((n,n))
+    for i in range(n):
+        for j in range(n):
+            if A[i,j] < p:
+                B[i,j] = 1
+    return B
+
+def generate_z_2(n):
+    '''
+    use the random 2d simple graph function to generate a Z_2 grid n*n graph matrix
+    k_th index represent the (p,r) coordinates where k = pn + r 0 <= r < n 
+    '''
+    initial = np.zeros((n**2,n**2))
+    z_2_cooordinate = nx.grid_2d_graph(n,n)
+    coordinate_to_index = { (x,y) : x*n+y for x,y in z_2_cooordinate}
+    edges = z_2_cooordinate.edges
+    edges_index = [(coordinate_to_index[p1], coordinate_to_index[p2]) for p1, p2 in edges]
+
+    for i, j in edges_index:
+        if i > j:
+            i, j = j, i 
+        initial[i][j] = 1 
+        initial[j][i] = 1
+
+    return initial
+
+def rand_matrix_sym(n,p):
+    A = rand_matrix(n,p)
+    B = np.zeros((n,n))
+    for i in range(n):
+        for j in range(i,n):
+            B[i,j] = A[i,j]
+            B[j,i] = A[i,j]
+    return B
+
+def rand_walk(A, start, times):
+    walk = [start] #list of the ramdom walk
+    size = len(A[1])
+    for rep in range(times): 
+        current_ver = walk[rep]
+        adjacents = [i for i in range(size) if A[current_ver][i] == 1 and i != current_ver] 
+        #in each repetition, first search for all adjacent vertices 
+        if adjacents != []:        
+            next_vertix = np.random.choice(adjacents)  
+            walk.append(next_vertix)
+        elif adjacents == []: # break if the start has no adjacents 
+            break
+    return walk
+
+def rand_walk_fill(A,start = -1):
+    size = len(A[0])
+    if start == -1:
+        start = np.random.choice(range())
+
+def check_path(A, steps = 0):
+    '''
+    Inputs should be edges matrices with diagonals zeros
+    return the number of paths matrix  with n - 1 steps where n is the size of A 
+    '''
+    
+    size = len(A[1])
+    if steps == 0:
+        steps = size - 1
+    sum = np.zeros((size,size))
+    A_multiple = A
+    sum = sum + A
+    for i in range(steps):
+        A_multiple = np.matmul(A_multiple, A)
+        sum = sum + A_multiple
+    return sum
+
+def random_compete(G, goals, start = -1):
+    '''
+    given a graph and a set of goals 
+    return how many steps a random walk need to complete the goals 
+    start is random if not served
+    '''
+
+def indices_to_coordinates(walk, n):
+    '''
+    receive a walk in indices and translate it into a walk in coordinates assuming on a n*n graph 
+    k_th index represent the (p,r) coordinates where k = pn + r 0 <= r < n 
+    '''
+    index_to_coor = {
+        index: (index//n, index % n) for index in range(n**2)
+    }
+    walk_in_coordinates = [index_to_coor[path] for path in walk]
+
+    return walk_in_coordinates
+
+def plot_grid_walk(walk,n):
+    '''
+    Take a list of walk coordinates and plot it on an n*n 2d coordinates
+    walk should be a list of coordinates tuple compatible with n
+    '''
+    fig, ax = plt.subplots()
+    ax.set_xlim(-1,n)
+    ax.set_ylim(-1,n)
+    steps = len(walk)
+    walk = iter(walk)
+    for t in range(steps):
+        if t == 0:
+            x_coor = []
+            y_coor = []
+            x, y = next(walk)
+            x_coor.append(x)
+            y_coor.append(y)
+            points, = ax.plot(x_coor, y_coor, marker='o', linestyle='-')
+        else:
+            x,y = next(walk)
+            x_coor.append(x)
+            y_coor.append(y)
+            points.set_data(x_coor, y_coor)
+        plt.grid()
+        plt.pause(0.05)
+        plt.grid()
+    plt.show()
+
